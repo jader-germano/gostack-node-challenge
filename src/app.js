@@ -28,7 +28,7 @@ function validateRepositoryId(request, response, next) {
 }
 
 app.use(logRequests);
-app.use('/repositories/:id', validateRepositoryId);
+app.use('/repositories:id', validateRepositoryId);
 
 app.get('/repositories', (request, response) => {
     const { title } = request.query;
@@ -39,15 +39,16 @@ app.get('/repositories', (request, response) => {
 
     let resultsMounted = results.map(repo => {
         let like = likes.get(repo.id);
+        let likesLength = like > 0 ? like.length -1: like.length
         return {
             ...repo,
-            likes: like[like.length -1]
+            likes: like[likesLength]
         }
     });
     return response.json(resultsMounted);
 });
 
-app.post('/repositories/', (request, response) => {
+app.post('/repositories', (request, response) => {
     const { url, title, techs } = request.body;
     let like = 0
     let id = uuid();
@@ -60,14 +61,14 @@ app.post('/repositories/', (request, response) => {
     repositories.push(repository);
     likes.set(id, [like]);
     let returnLike = likes.get(id);
-    console.log(like,like[like.length -1] )
+    let likesLength = returnLike.length > 0 ? returnLike.length -1: returnLike.length
     return response.json({
         ...repository,
-        likes: returnLike[returnLike.length-1]
+        likes: returnLike[likesLength]
     });
 });
 
-app.put('/repositories/:id', (request, response) => {
+app.put('/repositories:id', (request, response) => {
     const { id } = request.params;
     const { url, title, techs } = request.body;
 
@@ -118,7 +119,8 @@ app.post('/repositories/:id/like', (request, response) => {
         return response.status(400)
         .json({ error: 'Repository not found.' });
     }
-    let newLikeVal = returnLike[returnLike.length-1]+1;
+    let likesLength = returnLike.length > 0 ? returnLike.length -1: returnLike.length
+    let newLikeVal = returnLike[likesLength]+1;
     likes.set(id, [...returnLike, newLikeVal]);
     console.log(newLikeVal, likes)
     console.log(likes)
