@@ -39,7 +39,7 @@ app.get('/repositories', (request, response) => {
 
     let resultsMounted = results.map(repo => {
         let like = likes.get(repo.id);
-        let likesLength = like > 0 ? like.length -1: like.length
+        let likesLength = like.length > 0 ? like.length - 1 : like.length
         return {
             ...repo,
             likes: like[likesLength]
@@ -61,7 +61,7 @@ app.post('/repositories', (request, response) => {
     repositories.push(repository);
     likes.set(id, [like]);
     let returnLike = likes.get(id);
-    let likesLength = returnLike.length > 0 ? returnLike.length -1: returnLike.length
+    let likesLength = returnLike.length > 0 ? returnLike.length - 1 : returnLike.length;
     return response.json({
         ...repository,
         likes: returnLike[likesLength]
@@ -88,7 +88,7 @@ app.put('/repositories:id', (request, response) => {
     let returnLike = likes.get(id);
     return response.json({
         ...repository,
-        likes: returnLike[returnLike.length -1]
+        likes: returnLike[returnLike.length - 1]
     });
 });
 
@@ -113,17 +113,22 @@ app.delete('/repositories/:id', async (request, response) => {
 app.post('/repositories/:id/like', (request, response) => {
 
     const { id } = request.params;
-    const repository = repositories.find(pjr => pjr.id === id);
+
+    let repository = repositories.find(pjr => pjr.id === id);
+
     let returnLike = likes.get(id);
+
     if (!repository) {
         return response.status(400)
         .json({ error: 'Repository not found.' });
     }
-    let likesLength = returnLike.length > 0 ? returnLike.length -1: returnLike.length
-    let newLikeVal = returnLike[likesLength]+1;
+
+    let likesLength = returnLike.length > 0 ? returnLike.length - 1 : returnLike.length;
+
+    let newLikeVal = returnLike[likesLength] + 1;
+
     likes.set(id, [...returnLike, newLikeVal]);
-    console.log(newLikeVal, likes)
-    console.log(likes)
+    repository = repositories.find(pjr => pjr.id === id);
     return response.json({
         ...repository,
         likes: newLikeVal,
